@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Garden — Pixel Art Edition</title>
+  <!-- Google Fonts: Pixelify Sans for true game typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --surface: rgba(253, 250, 243, 0.95);
+      --surface-subtle: #f4eee1;
+      --border: #d4cbb8;
+      --border-strong: #a3967d;
+      --text: #2c352e;
+      --text-muted: #5c6b60;
+      --primary: #3b5d38;
+      --primary-hover: #2b4428;
+      --primary-subtle: #e4efe2;
+      --accent-warm: #d97736;
+      --danger: #a93e3e;
+      --radius: 10px;
+      --shadow-pixel: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(212, 203, 184, 0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    body { 
+      /* Pixel Art Garden Background featuring trees, fence, and raised garden beds */
+      background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55)), 
+                  url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text); 
+      min-height: 100vh; 
+      line-height: 1.5; 
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      box-shadow: inset 0 0 120px rgba(0,0,0,0.6);
+      pointer-events: none;
+    }
+    
+    .container { max-width: 1000px; margin: 0 auto; padding: 24px; position: relative; z-index: 2; }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      background: rgba(30, 36, 32, 0.9);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(212, 203, 184, 0.2);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand-title { 
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 22px; 
+      letter-spacing: 1px;
+      color: #f4eee1; 
+    }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .user-badge {
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(212, 203, 184, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      color: #e2dcd0;
+    }
+    .user-badge strong { color: #fff; }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(212, 203, 184, 0.4);
+      color: #f4eee1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
+
+    /* Title Screen (Left-Aligned Game Layout) */
+    .title-screen-wrapper {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: 20px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .title-screen-wrapper.hidden { display: none; }
+
+    .game-title {
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 64px;
+      color: #f4eee1;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9);
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    .title-menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .title-menu-btn {
+      background: rgba(253, 250, 243, 0.92);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      border-radius: 8px;
+      padding: 12px 20px;
+      text-align: left;
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .title-menu-btn:hover {
+      background: #fff;
+      border-left-color: var(--accent-warm);
+      transform: translateX(8px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+
+    /* Sub-screens */
+    .sub-screen {
+      min-height: 75vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .sub-screen.active { display: flex; animation: fadeIn 0.3s ease forwards; }
+
+    .login-card, .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-pixel);
+      animation: scaleIn 0.3s ease forwards;
+    }
+    .login-card h2, .info-card h2 { font-family: 'Pixelify Sans', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .login-card p, .info-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+    /* Form Fields */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 93, 56, 0.15);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+    /* Header Banner */
+    .hero-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-pixel);
+      animation: fadeIn 0.4s ease;
+    }
+    .hero-text h1 { font-family: 'Pixelify Sans', sans-serif; font-size: 24px; letter-spacing: 0.5px; color: #1e2420; }
+    .hero-text p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .weather-indicator {
+      text-align: right;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface-subtle);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .weather-indicator strong { display: block; font-size: 13px; color: var(--text); }
+
+    /* Main Menu Hub Grid */
+    .menu-header-label {
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 24px;
+      letter-spacing: 1px;
+      color: #f4eee1;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+    
+    .menu-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+    
+    .menu-card {
+      background: rgba(253, 250, 243, 0.93);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      border-radius: 8px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .menu-card:hover {
+      background: #fff;
+      border-left-color: var(--accent-warm);
+      transform: translateX(8px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+    
+    .menu-card-content h3 { 
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.5px;
+      color: var(--text); 
+    }
+    .menu-card .link-text { font-size: 14px; font-weight: 600; color: var(--primary); }
+
+    /* Views Framework */
+    .view-container { display: none; }
+    .view-container.active { display: block; animation: fadeIn 0.3s ease forwards; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(212, 203, 184, 0.3);
+    }
+    .view-title h2 { font-family: 'Pixelify Sans', sans-serif; font-size: 30px; letter-spacing: 0.5px; color: #f4eee1; }
+    .view-title p { font-size: 13px; color: #d0c7b4; }
+
+    /* Card Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-pixel);
+      animation: fadeIn 0.3s ease;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .panel-title { font-family: 'Pixelify Sans', sans-serif; font-size: 18px; letter-spacing: 0.5px; }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+    }
+    .badge-success { background: var(--primary-subtle); color: var(--primary); border-color: rgba(59, 93, 56, 0.2); }
+    .badge-danger { background: #fdf2f2; color: var(--danger); border-color: rgba(169, 62, 62, 0.2); }
+
+    /* Data Table */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+    .data-table th { text-align: left; padding: 8px 10px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); background: var(--surface-subtle); }
+    .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* Progress bar */
+    .progress-bar-bg { width: 100%; height: 6px; background: var(--surface-subtle); border-radius: 4px; overflow: hidden; margin-top: 6px; border: 1px solid var(--border); }
+    .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.4s ease; }
+
+    .action-btn-group { display: flex; gap: 6px; }
+    .btn-sm-approve { background: var(--primary); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .btn-sm-reject { background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .empty-state { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Nav Bar -->
+  <nav class="top-nav" id="top-nav" style="display: none;">
+    <div class="brand-title">🌱 COMMUNITY GARDEN</div>
+    <div class="nav-actions">
+      <span class="user-badge" id="nav-user-info">User: <strong>Guest</strong></span>
+      <button class="btn-secondary" onclick="signOut()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Title Screen -->
+    <div id="screen-title" class="title-screen-wrapper">
+      <h1 class="game-title">COMMUNITY<br>GARDEN</h1>
+      
+      <div class="title-menu-list">
+        <button class="title-menu-btn" onclick="showScreen('screen-login')">Sign In</button>
+        <button class="title-menu-btn" onclick="showScreen('screen-options')">Options</button>
+        <button class="title-menu-btn" onclick="showScreen('screen-about')">About</button>
+        <button class="title-menu-btn" onclick="quitGame()" style="border-left-color: var(--danger);">Quit</button>
+      </div>
+    </div>
+
+    <!-- Sign In Screen -->
+    <div id="screen-login" class="sub-screen">
+      <div class="login-card">
+        <h2>Sign In</h2>
+        <p>Access your local community plot records and journal entries.</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="input-username">Your Name / Alias</label>
+            <input type="text" id="input-username" placeholder="e.g. Max Caulfield" required autofocus>
+          </div>
+          <div class="form-group">
+            <label for="input-role">Account Role</label>
+            <select id="input-role">
+              <option value="Member">Member</option>
+              <option value="Moderator">Moderator</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 6px;">Enter Portal</button>
+        </form>
+        <button class="btn-secondary" style="width: 100%; margin-top: 10px; color: var(--text); border-color: var(--border-strong);" onclick="showScreen('screen-title')">&larr; Back to Title</button>
+      </div>
+    </div>
+
+    <!-- Options Screen -->
+    <div id="screen-options" class="sub-screen">
+      <div class="info-card">
+        <h2>Options</h2>
+        <p>Adjust your portal viewing preferences.</p>
+        <div class="form-group">
+          <label>Ambient Audio</label>
+          <select><option>Sunset Crickets & Wind</option><option>Muted</option></select>
+        </div>
+        <button class="btn-secondary" style="width: 100%; margin-top: 12px; color: var(--text); border-color: var(--border-strong);" onclick="showScreen('screen-title')">&larr; Back to Title</button>
+      </div>
+    </div>
+
+    <!-- About Screen -->
+    <div id="screen-about" class="sub-screen">
+      <div class="info-card">
+        <h2>About</h2>
+        <p>Community Garden Management Portal v1.3</p>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          Featuring pixel-art aesthetics, cozy garden fence views, and retro typography.
+        </p>
+        <button class="btn-secondary" style="width: 100%; margin-top: 14px; color: var(--text); border-color: var(--border-strong);" onclick="showScreen('screen-title')">&larr; Back to Title</button>
+      </div>
+    </div>
+
+    <!-- Main Menu Dashboard Hub -->
+    <div id="view-menu" class="view-container">
+      <div class="hero-banner">
+        <div class="hero-text">
+          <h1 id="menu-welcome-text">Community Garden</h1>
+          <p id="menu-location-text">Loading location...</p>
+        </div>
+        <div class="weather-indicator">
+          <span>Current Conditions</span>
+          <strong id="menu-weather-text">Checking...</strong>
+        </div>
+      </div>
+
+      <div class="menu-header-label">Menu Options</div>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="navigateTo('view-beds')">
+          <div class="menu-card-content"><h3>Garden Beds</h3></div>
+          <span class="link-text">&rarr;</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('view-submit')">
+          <div class="menu-card-content"><h3>Plant a Seed</h3></div>
+          <span class="link-text">&rarr;</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('view-my-requests')">
+          <div class="menu-card-content"><h3>My Requests</h3></div>
+          <span class="link-text">&rarr;</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('view-weather')">
+          <div class="menu-card-content"><h3>Weather</h3></div>
+          <span class="link-text">&rarr;</span>
+        </div>
+        <div class="menu-card" id="menu-card-admin" style="display: none;" onclick="navigateTo('view-moderation')">
+          <div class="menu-card-content"><h3 style="color: var(--accent-warm);">Moderation Desk</h3></div>
+          <span class="link-text" style="color: var(--accent-warm);">&rarr;</span>
+        </div>
+        <div class="menu-card" onclick="signOut()" style="border-left-color: var(--danger);">
+          <div class="menu-card-content"><h3 style="color: var(--danger);">Sign Out</h3></div>
+          <span class="link-text" style="color: var(--danger);">&rarr;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garden Beds View -->
+    <div id="view-beds" class="view-container">
+      <div class="view-header">
+        <div class="view-title">
+          <h2>Garden Beds</h2>
+          <p>Directory of physical beds and their plant contents.</p>
+        </div>
+        <button class="btn-secondary" onclick="navigateTo('view-menu')">&larr; Back to Menu</button>
+      </div>
+      <div id="beds-list"></div>
+    </div>
+
+    <!-- Plant a Seed View -->
+    <div id="view-submit" class="view-container">
+      <div class="view-header">
+        <div class="view-title">
+          <h2>Plant a Seed</h2>
+          <p>Propose a new planting for review.</p>
+        </div>
+        <button class="btn-secondary" onclick="navigateTo('view-menu')">&larr; Back to Menu</button>
+      </div>
+      <div class="panel" style="max-width: 500px; margin: 0 auto;">
+        <form id="submit-request-form">
+          <div class="form-group">
+            <label>Plant Name</label>
+            <input type="text" id="req-plant-name" placeholder="e.g. Roma Tomato" required>
+          </div>
+          <div class="form-group">
+            <label>Plant Classification / Type</label>
+            <input type="text" id="req-plant-type" placeholder="e.g. Vegetable, Herb" required>
+          </div>
+          <div class="form-group">
+            <label>Select Target Bed</label>
+            <select id="req-bed-select" required></select>
+          </div>
+          <div class="form-group">
+            <label>Additional Notes (Optional)</label>
+            <input type="text" id="req-comment" placeholder="Optional notes">
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 6px;">Submit Application</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- My Requests View -->
+    <div id="view-my-requests" class="view-container">
+      <div class="view-header">
+        <div class="view-title">
+          <h2>My Requests</h2>
+          <p>Applications submitted under your account.</p>
+        </div>
+        <button class="btn-secondary" onclick="navigateTo('view-menu')">&larr; Back to Menu</button>
+      </div>
+      <div class="panel">
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Plant Name</th><th>Type</th><th>Bed</th><th>Notes</th><th>Status</th></tr>
+          </thead>
+          <tbody id="my-requests-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Weather View -->
+    <div id="view-weather" class="view-container">
+      <div class="view-header">
+        <div class="view-title">
+          <h2>Weather</h2>
+          <p>Real-time atmospheric telemetry.</p>
+        </div>
+        <button class="btn-secondary" onclick="navigateTo('view-menu')">&larr; Back to Menu</button>
+      </div>
+      <div class="panel" style="max-width: 500px; margin: 0 auto;">
+        <div class="form-group"><label>Location Coordinates</label><input type="text" id="weather-detail-coords" readonly></div>
+        <div class="form-group"><label>Current Atmospheric Report</label><input type="text" id="weather-detail-report" readonly></div>
+      </div>
+    </div>
+
+    <!-- Moderation Desk View -->
+    <div id="view-moderation" class="view-container">
+      <div class="view-header">
+        <div class="view-title">
+          <h2>Moderation Desk</h2>
+          <p>Review incoming requests and make determinations.</p>
+        </div>
+        <button class="btn-secondary" onclick="navigateTo('view-menu')">&larr; Back to Menu</button>
+      </div>
+      <div class="panel">
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Applicant</th><th>Plant</th><th>Type</th><th>Bed</th><th>Notes</th><th style="text-align: right;">Action</th></tr>
+          </thead>
+          <tbody id="mod-requests-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUser = null;
+    let gardenData = null;
+
+    function showScreen(screenId) {
+      document.getElementById('screen-title').classList.add('hidden');
+      document.querySelectorAll('.sub-screen').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+
+      if (screenId === 'screen-title') {
+        document.getElementById('screen-title').classList.remove('hidden');
+      } else {
+        const target = document.getElementById(screenId);
+        if (target) target.classList.add('active');
+      }
+    }
+
+    function quitGame() { window.close(); alert("You can now close this tab."); }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('input-username').value.trim();
+      const role = document.getElementById('input-role').value;
+      if (!username) return;
+
+      currentUser = { username, role };
+      document.getElementById('nav-user-info').innerHTML = `User: <strong>${currentUser.username}</strong> [${currentUser.role}]`;
+      document.getElementById('top-nav').style.display = 'flex';
+      
+      const isModOrAdmin = (role === 'Moderator' || role === 'Admin');
+      document.getElementById('menu-card-admin').style.display = isModOrAdmin ? 'flex' : 'none';
+
+      navigateTo('view-menu');
+      loadGardenData();
+    });
+
+    function signOut() {
+      currentUser = null;
+      document.getElementById('top-nav').style.display = 'none';
+      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('screen-title').classList.remove('hidden');
+      document.getElementById('input-username').value = '';
+    }
+
+    function navigateTo(viewId) {
+      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add('active');
+        if (viewId === 'view-my-requests') renderMyRequests();
+      }
+    }
+
+    async function loadGardenData() {
+      try {
+        const res = await fetch('/api/garden');
+        gardenData = await res.json();
+        if (gardenData.welcomeMessage) document.getElementById('menu-welcome-text').innerText = gardenData.welcomeMessage;
+        if (gardenData.location) {
+          document.getElementById('menu-location-text').innerText = `Location: ${gardenData.location}`;
+          document.getElementById('weather-detail-coords').value = gardenData.location;
+        }
+        if (gardenData.weather) {
+          document.getElementById('menu-weather-text').innerText = gardenData.weather;
+          document.getElementById('weather-detail-report').value = gardenData.weather;
+        }
+        renderBeds();
+        renderModeratorDesk();
+        renderBedDropdown();
+      } catch (err) { console.error(err); }
+    }
+
+    function renderBeds() {
+      const container = document.getElementById('beds-list');
+      if (!gardenData.beds) return;
+      container.innerHTML = gardenData.beds.map(bed => {
+        const count = bed.plants ? bed.plants.length : 0;
+        const pct = Math.min(100, Math.round((count / bed.capacity) * 100));
+        const isFull = count >= bed.capacity;
+        let tableRows = bed.plants?.length ? bed.plants.map(p => `<tr><td><strong>${p.name}</strong></td><td>${p.type}</td><td>${p.owner}</td></tr>`).join('') : '<tr><td colspan="3" class="empty-state">No plants in this bed yet.</td></tr>';
+        return `
+          <div class="panel">
+            <div class="panel-header">
+              <div><span class="panel-title">Bed #${bed.index}</span> <span style="font-size: 12px; color: var(--text-muted);">Soil: ${bed.soil}</span></div>
+              <span class="badge ${isFull ? 'badge-danger' : 'badge-success'}">${count} / ${bed.capacity} ${isFull ? '(FULL)' : ''}</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
+            <table class="data-table"><thead><tr><th>Specimen</th><th>Type</th><th>Planted By</th></tr></thead><tbody>${tableRows}</tbody></table>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBedDropdown() {
+      const select = document.getElementById('req-bed-select');
+      select.innerHTML = '';
+      gardenData?.beds?.forEach(bed => {
+        const isFull = (bed.plants?.length || 0) >= bed.capacity;
+        const opt = document.createElement('option');
+        opt.value = bed.index;
+        opt.innerText = `Bed #${bed.index} (${bed.plants?.length || 0}/${bed.capacity})${isFull ? ' [FULL]' : ''}`;
+        if (isFull) opt.disabled = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderMyRequests() {
+      const tbody = document.getElementById('my-requests-body');
+      const myReqs = gardenData?.requests?.filter(r => r.user?.toLowerCase() === currentUser?.username.toLowerCase()) || [];
+      if (!myReqs.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No pending requests.</td></tr>'; return; }
+      tbody.innerHTML = myReqs.map(r => `<tr><td>#${r.id}</td><td><strong>${r.plantName}</strong></td><td>${r.plantType}</td><td>Bed #${r.bedIndex}</td><td>${r.comment || '—'}</td><td><span class="badge">Pending</span></td></tr>`).join('');
+    }
+
+    function renderModeratorDesk() {
+      const tbody = document.getElementById('mod-requests-body');
+      if (!gardenData?.requests?.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No pending items.</td></tr>'; return; }
+      tbody.innerHTML = gardenData.requests.map(r => `<tr><td>#${r.id}</td><td><strong>${r.user}</strong></td><td>${r.plantName}</td><td>${r.plantType}</td><td>Bed #${r.bedIndex}</td><td>${r.comment || '—'}</td><td style="text-align: right;"><div class="action-btn-group" style="justify-content: flex-end;"><button class="btn-sm-approve" onclick="handleModAction(${r.queueIndex}, 'approve')">Approve</button><button class="btn-sm-reject" onclick="handleModAction(${r.queueIndex}, 'reject')">Reject</button></div></td></tr>`).join('');
+    }
+
+    document.getElementById('submit-request-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = new URLSearchParams({
+        username: currentUser.username,
+        plantName: document.getElementById('req-plant-name').value.trim(),
+        plantType: document.getElementById('req-plant-type').value.trim(),
+        bedIndex: document.getElementById('req-bed-select').value,
+        comment: document.getElementById('req-comment').value.trim()
+      });
+      await fetch('/api/request', { method: 'POST', body });
+      document.getElementById('submit-request-form').reset();
+      await loadGardenData();
+      navigateTo('view-my-requests');
+    });
+
+    async function handleModAction(index, action) {
+      await fetch('/api/action', { method: 'POST', body: new URLSearchParams({ index, action }) });
+      await loadGardenData();
+    }
+  </script>
+</body>
+</html>

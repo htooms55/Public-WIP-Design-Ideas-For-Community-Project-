@@ -23,11 +23,12 @@ a full MVC restructure, a live web dashboard, and custom frontend design work.
 - Brainstorming theme variations: Water Color, Pastel, Pixel-Hybrid, 3D/2D)
 
 ### Title Screen Concept
-![Title Screen](design/pixel_title_screen.jpg)
+![Title Screen](PublicGardenProject/design/pixel_title_screen.jpg)
 
 ### Garden Menu Concept
-![Garden Menu](design/pixel_garden_menu.jpg)
+![Garden Menu](PublicGardenProject/design/pixel_garden_menu.jpg)
 
+  
 ---
 
 ## Tech Stack
